@@ -1,0 +1,40 @@
+(() => {
+  const followButtonQuery = '[data-testid$="-unfollow"]';
+  const confirmButtonQuery = '[data-testid="confirmationSheetConfirm"]';
+  const sleep = ({ seconds }) =>
+    new Promise(proceed => {
+      console.log(`ОЖИДАЕМ ${seconds} СЕКУНД...`);
+      setTimeout(proceed, seconds * 1000);
+    });
+
+  const nextBatch = async () => {
+    window.scrollTo(0, document.body.scrollHeight);
+    await sleep({ seconds: 1 });
+
+    const followButtons = Array.from(document.querySelectorAll(followButtonQuery));
+    const followButtonCount = followButtons.length;
+
+    if (followButtonCount === 0) {
+      console.log(`ЗАДАЧА ВЫПОЛНЕНА`);
+      console.log(`ЕСЛИ ПО РЕЗУЛЬТАТАМ ВЫ ВСЕ ЕЩЁ ОСТАЛИСЬ НА КОГО-ТО ПОДПИСАНЫ, ТО ПЕРЕЗАГРУЗИТЕ СТРАНИЦУ И ВЫПОЛНИТЕ СКРИПТ ЕЩЁ РАЗ`);
+      return;
+    }
+
+    console.log(`Отписаны от ${followButtonCount} страниц...`);
+
+    await Promise.all(
+      followButtons.map(async followButton => {
+        followButton.click();
+        await sleep({ seconds: 1 });
+        const confirmButton = document.querySelector(confirmButtonQuery);
+        confirmButton.click();
+      })
+    );
+
+    await sleep({ seconds: 2 });
+    nextBatch();
+  };
+
+  nextBatch();
+})();
+Источник: https://it-actual.ru/mass-unfollow-in-twitter.html
